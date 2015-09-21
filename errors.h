@@ -1,3 +1,5 @@
+/*this errors.h file i found online: not my own work*/
+
 #ifndef __errors_h
 #define __errors_h
 
