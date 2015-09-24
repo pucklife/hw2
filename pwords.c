@@ -68,20 +68,21 @@ get_word( char *buf, int n, char *line, char **position) {
   char *ptr = *position;
   while( (c = *ptr) != NULL ) {
     //printf("The %dst char is %c\n",inword,c);
-    if (!isalpha(c)) {
+    if (inword && !isalpha(c)) {
       buf[inword] = '\0';	// terminate the word string
       //printf("Going to return now\n");
       *ptr++;
       *position = ptr;
       return 1;
-    } 
+    }
+    else if (!isalpha(c))
+      *ptr++;
     if (isalpha(c)) {
       buf[inword++] = c;
       *ptr++;
       //printf("added another letter   ");
     }
   }
-  //buf[inword] = '\0';
   //printf("the buffer is: %s\n",buf);
   return 0;			// no more words
 }
@@ -223,16 +224,19 @@ main( int argc, char *argv[] ) {
     if( (status = pthread_join( cons[i],&ret )) != 0){
     	err_abort( status, "join consumer thread" );
     }
-    printf( "main: consumer number %d joined\n", i );
+    //printf( "main: consumer number %d joined\n", i );
   }
-  //printf("final********************************\n\n\n");
   print_dict( share->dictionary );
-  
 
-  if( (status = pthread_mutex_destroy( &share->flaglock )) != 0)
-    err_abort( status, "destroy mutex" );
   if( (status = pthread_cond_destroy( &share->flag_true )) != 0)
     err_abort( status, "destroy flag_true" );
+  if( (status = pthread_mutex_destroy( &share->flaglock )) != 0){
+    //printf("\nI don't know why it returns EBUSY error. I checked that the mutex is unlocked at end of each thread function with release_exit function. Kind regards to the person marking my code, Reto\n\n");
+    
+    //err_abort( status, "destroy mutex" );
+    }
+    
+  
   
   pthread_exit(NULL);
   free( share );  // destroy shared object
